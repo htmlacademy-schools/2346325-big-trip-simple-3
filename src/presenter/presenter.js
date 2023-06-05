@@ -11,15 +11,18 @@ export default class Presenter {
   eventEditComponent = new EditEventView();
   sortViewComponent = new SortView();
 
-  init = (eventsContainer) => {
+  init = (eventsContainer, eventModel) => {
     this.eventsContainer = eventsContainer;
+
+    this.eventModel = eventModel;
+    this.routePoints = [...this.eventModel.getEvents()];
 
     render(this.sortViewComponent, this.eventsContainer);
     render(this.tripListComponent, this.eventsContainer);
-    render(this.eventEditComponent, this.tripListComponent.getElement());
+    render(new EditEventView(this.routePoints[0]), this.tripListComponent.getElement());
 
-    for (let i = 0; i < 3; i++) {
-      render(new EventView(), this.tripListComponent.getElement());
+    for (let i = 0; i < this.routePoints.length; i++) {
+      render(new EventView(this.routePoints[i]), this.tripListComponent.getElement());
     }
   };
 }
