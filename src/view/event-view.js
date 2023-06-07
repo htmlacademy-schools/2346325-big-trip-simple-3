@@ -5,6 +5,7 @@ import {
   humanizePointDateNumber,
   getPointDateRFC
 } from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createEventViewTemplate = (point) => {
   const {dateFrom, dateTo, basePrice, type, destination} = point;
@@ -48,11 +49,11 @@ const createEventViewTemplate = (point) => {
   );
 };
 
-export default class PointView {
+export default class PointView extends AbstractView {
   #event = null;
-  #element = null;
 
   constructor(event) {
+    super();
     this.#event = event;
   }
 
@@ -60,15 +61,13 @@ export default class PointView {
     return createEventViewTemplate(this.#event);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setEditButtonClickHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+  };
 }

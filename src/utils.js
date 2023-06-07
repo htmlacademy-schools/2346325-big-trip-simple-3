@@ -23,16 +23,4 @@ const humanizePointDateNumber = (dueDate) => dayjs(dueDate).format('YYYY-MM-DD')
 
 const getPointDateRFC = (dueDate) => dayjs(dueDate).format('YYYY-MM-DDTHH:mm');
 
-const createOnEscKeydownFun = (element, onKeydownFunction) => {
-  const onEscKeydown = (evt) => {
-    if (evt.key === 'Escape') {
-      evt.preventDefault();
-      onKeydownFunction();
-    }
-  };
-  element.addEventListener('keydown', onEscKeydown);
-
-  return onEscKeydown;
-};
-
-export { getRandomInt, getRandomArrayElement, humanizePointDate, humanizePointTime, humanizePointDateNumber, getPointDateRFC, createOnEscKeydownFun };
+export { getRandomInt, getRandomArrayElement, humanizePointDate, humanizePointTime, humanizePointDateNumber, getPointDateRFC };
