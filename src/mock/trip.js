@@ -19,21 +19,17 @@ const generatePhotos = () => {
   return pictures;
 };
 
-const getRandomDestination = () => {
-  const destinations = {};
-
-  DESTINATION_NAMES.forEach((name, index) => {
-    const id = index + 1;
-    destinations[`${id}`] = {
-      id,
-      description: generateDescription(),
-      name,
-      pictures: generatePhotos(),
-    };
-  });
-
-  return destinations[`${getRandomInt(1, DESTINATION_NAMES.length)}`];
-};
+export const destinations = {};
+DESTINATION_NAMES.forEach((name, index) => {
+  const id = index + 1;
+  destinations[`${id}`] = {
+    id,
+    description: generateDescription(),
+    name,
+    pictures: generatePhotos(),
+  };
+});
+const getRandomDestination = () => destinations[`${getRandomInt(1, DESTINATION_NAMES.length)}`];
 
 const generateDate = () => {
   const maxDaysGap = 7;
@@ -42,17 +38,26 @@ const generateDate = () => {
   return dayjs().add(daysGap, 'day').toDate();
 };
 
+const numOfOffers = getRandomInt(1, 8);
+export const allOffers = new Array(numOfOffers);
+for (let i = 0; i < numOfOffers; i++) {
+  allOffers[i] = {
+    id: i,
+    title: getRandomArrayElement(DESTINATION_NAMES),
+    price: getRandomInt(1, 500)
+  };
+}
+
 const generateOffers = () => {
-  const offers = new Array(DESTINATION_NAMES.length);
-  for (let i = 0; i < 3; i++) {
-    offers[i] = {
-      id: i,
-      title: getRandomArrayElement(DESTINATION_NAMES),
-      price: getRandomInt(1, 500)
-    };
+  const res = new Set();
+  for (let i = 0; i < numOfOffers; i++) {
+    if (getRandomInt() > 50) {
+      res.add(i);
+    }
   }
-  return offers;
+  return Array.from(res);
 };
+
 
 const generateTripEvents = (eventsNumber) => {
   const events = new Array(eventsNumber);
@@ -75,4 +80,4 @@ const generateTripEvents = (eventsNumber) => {
   return events;
 };
 
-export { generateTripEvents, generateOffers };
+export { generateTripEvents };

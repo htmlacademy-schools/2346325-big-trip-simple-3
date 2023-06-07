@@ -1,9 +1,11 @@
 import {humanizePointTime} from '../utils/common.js';
 import {TRIP_EVENT_TYPES, DESTINATION_NAMES} from '../const.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import { destinations, allOffers } from '../mock/trip.js';
+import { getIdFromTag } from '../utils/common.js';
 
 const createEventEditTemplate = (event) => {
-  const {dateFrom, dateTo, type, offers, destination, basePrice} = event;
+  const {dateFrom, dateTo, type, stateOffers, destination, basePrice} = event;
 
   return (
     `<li class="trip-events__item">
@@ -67,9 +69,9 @@ const createEventEditTemplate = (event) => {
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
             <div class="event__available-offers">
-              ${offers.length > 0 ? offers.map((offer) => (`<div class="event__offer-selector">
-                    <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" checked>
-                    <label class="event__offer-label" for="event-offer-luggage-1">
+              ${stateOffers.length > 0 ? stateOffers.map((offer) => (`<div class="event__offer-selector">
+              <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" ${offer.isChecked ? 'checked' : ''}>
+              <label class="event__offer-label" for="event-offer-${offer.id}">
                       <span class="event__offer-title">${offer.title}</span>
                       &plus;&euro;&nbsp;
                       <span class="event__offer-price">${offer.price}</span>
@@ -98,16 +100,113 @@ const createEventEditTemplate = (event) => {
   );
 };
 
-export default class EditEventView extends AbstractView {
-  #event = null;
+export default class EditEventView extends AbstractStatefulView {
+  _state = null;
+
+  //static parseEventToState = (event) => ({...event,
+  //});
+
+  static parseEventToState = (event) => {
+    const offs = [];
+    for (const off of Object.values(allOffers)) {
+      offs.push({...off, 'isChecked': event.offers.includes(off.id)});
+    }
+    return {...event, 'stateOffers': offs};
+  };
+
+  static parseStateToEvent = (state) => {
+    const event = {...state};
+    const noffers = [];
+    event.stateOffers.map((stoff) => {
+      if (stoff.isChecked) {
+        noffers.push({
+          id: stoff.id,
+          title: stoff.title,
+          price: stoff.price
+        });
+      }
+    });
+    event.offers = noffers;
+    delete event.stateOffers;
+    return event;
+  };
 
   constructor(event) {
     super();
-    this.#event = event;
+    this._state = EditEventView.parseEventToState(event);
+    this.#setInnerHandlers();
   }
 
+  #setInnerHandlers = () => {
+    this.element.querySelector('.event__type-list')
+      .addEventListener('change', this.#changeType);
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('input', this.#changeDestination);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('input', this.#changePrice);
+    for (const offer of this._state.stateOffers) {
+      this.element.querySelector(`#event-offer-${offer.id}`)
+        .addEventListener('click', this.#changeOffers);
+    }
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setFormCloseHandler(this._callback.closeForm);
+    this.setFormRemoveHandler(this._callback.formRemove);
+  };
+
+  #changeType = (evt) => {
+    evt.preventDefault();
+    const fieldset = this.element.querySelector('.event__type-list');
+    const newType = fieldset.querySelector('input:checked').value;
+    this.updateElement({
+      type: newType,
+      'stateOffers': new Array(),
+    });
+  };
+
+  #changeDestination = (evt) => {
+    evt.preventDefault();
+    const newDestinationName = event.target.value;
+    let newDestination = null;
+    Object.values(destinations).forEach((destination) => {
+      if (newDestinationName === destination.name) {
+        newDestination = destination;
+        this.updateElement({
+          destination: newDestination,
+        });
+      }
+    });
+  };
+
+  #changePrice = (evt) => {
+    evt.preventDefault();
+    const newPrice = event.target.value;
+    this._setState({
+      basePrice: newPrice,
+    });
+  };
+
+  #changeOffers = (evt) => {
+    evt.preventDefault();
+    const clickedOfferId = getIdFromTag(evt.target);
+    const stateOffers = this._state.stateOffers;
+    for (const offer of stateOffers) {
+      if (offer.id === clickedOfferId) {
+        offer.isChecked = !offer.isChecked;
+        break;
+      }
+    }
+    this.updateElement({
+      'stateOffers': stateOffers,
+    });
+  };
+
+
   get template() {
-    return createEventEditTemplate(this.#event);
+    return createEventEditTemplate(this._state);
   }
 
   setFormSubmitHandler = (callback) => {
@@ -117,17 +216,17 @@ export default class EditEventView extends AbstractView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(EditEventView.parseStateToEvent(this._state));
   };
 
   setFormRemoveHandler = (callback) => {
-    this._callback.formReset = callback;
+    this._callback.formRemove = callback;
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formRemoveHandler);
   };
 
   #formRemoveHandler = (evt) => {
     evt.preventDefault();
-    this._callback.delete();
+    this._callback.formRemove();
   };
 
   setFormCloseHandler = (callback) => {
@@ -138,5 +237,9 @@ export default class EditEventView extends AbstractView {
   #formCloseHandler = (evt) => {
     evt.preventDefault();
     this._callback.closeForm();
+  };
+
+  reset = (event) => {
+    this.updateElement(EditEventView.parseEventToState(event));
   };
 }

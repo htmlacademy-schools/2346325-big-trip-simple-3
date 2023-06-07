@@ -88,7 +88,6 @@ export default class TripPointPresenter {
   };
 
   #removePoint = () => {
-    this.#editTripComponent.removeEscKeydownListener();
     this.destroy();
     if (this.#tripListContainer.element.childElementCount === 0) {
       const epmtyList = new EmptyListView('Everything');

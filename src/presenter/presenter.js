@@ -89,7 +89,7 @@ class Presenter {
   };
 
   #handleEventChange = (updatedPoint) => {
-    this.#tripEvents = updateItem(this.#tripEvents , updatedPoint);
+    this.#tripEvents = updateItem(this.#tripEvents, updatedPoint);
     this.#tripPointPresenter.get(updatedPoint.id).init(updatedPoint);
   };
 

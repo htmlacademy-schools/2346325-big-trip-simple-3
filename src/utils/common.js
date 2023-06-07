@@ -39,4 +39,6 @@ const updateItem = (items, update) => {
   ];
 };
 
-export { getRandomInt, getRandomArrayElement, humanizePointDate, humanizePointTime, humanizePointDateNumber, getPointDateRFC, isEventUpcoming, updateItem};
+const getIdFromTag = (tag) => +tag.id.split('-').slice(-1);
+
+export { getRandomInt, getRandomArrayElement, humanizePointDate, humanizePointTime, humanizePointDateNumber, getPointDateRFC, isEventUpcoming, updateItem, getIdFromTag};
