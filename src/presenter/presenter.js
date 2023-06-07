@@ -2,7 +2,6 @@ import EventsListView from '../view/events-list-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import { render, RenderPosition } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
-import { generateSort } from '../mock/sort.js';
 import { updateItem } from '../utils/common.js';
 import TripPointPresenter from './trip-point-presenter.js';
 import { SORT_TYPE } from '../const.js';
@@ -10,15 +9,14 @@ import { sortPointsByDay, sortPointsByPrice } from '../utils/sort.js';
 
 class Presenter {
   #filter = 'Everything';
-  #currentSortType = SORT_TYPE.PRICE;
+  #currentSortType = SORT_TYPE.DAY;
 
-  #sorts = [];
   #eventsContainer = null;
   #eventModel = null;
   #tripEvents = [];
 
   #tripListComponent = new EventsListView();
-  #sortComponent = null;
+  #sortComponent = new SortView();
   #emptyList = new EmptyListView(this.#filter);
   #tripPointPresenter = new Map();
 
@@ -29,9 +27,6 @@ class Presenter {
 
   init = () => {
     this.#tripEvents = [...this.#eventModel.tripEvents];
-    this.#sorts = generateSort(this.#tripEvents);
-    this.#sortComponent = new SortView(this.#sorts);
-    //console.log(this.#sorts);
     this.#renderTrip();
   };
 
