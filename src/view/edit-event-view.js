@@ -1,6 +1,5 @@
-
 import {humanizePointTime} from '../utils/common.js';
-import {TRIP_EVENT_TYPES} from '../const.js';
+import {TRIP_EVENT_TYPES, DESTINATION_NAMES} from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 const createEventEditTemplate = (event) => {
@@ -32,13 +31,13 @@ const createEventEditTemplate = (event) => {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              Flight
+              ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="Chamonix" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${destination.name} list="destination-list-1">
             <datalist id="destination-list-1">
-              <option value="Amsterdam"></option>
-              <option value="Geneva"></option>
-              <option value="Chamonix"></option>
+            ${DESTINATION_NAMES.map((item) => (`
+            <option value=${item}></option>
+                `)).join('')}
             </datalist>
           </div>
 
@@ -121,14 +120,14 @@ export default class EditEventView extends AbstractView {
     this._callback.formSubmit();
   };
 
-  setFormResetHandler = (callback) => {
+  setFormRemoveHandler = (callback) => {
     this._callback.formReset = callback;
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formResetHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formRemoveHandler);
   };
 
-  #formResetHandler = (evt) => {
+  #formRemoveHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formReset();
+    this._callback.delete();
   };
 
   setFormCloseHandler = (callback) => {

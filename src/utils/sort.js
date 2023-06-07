@@ -1,4 +1,5 @@
 import { SORT_TYPE } from '../const.js';
+import dayjs from 'dayjs';
 
 export const sort = {
   [SORT_TYPE.DAY]: (points) => points,
@@ -7,3 +8,6 @@ export const sort = {
   [SORT_TYPE.PRICE]: (points) => points,
   [SORT_TYPE.OFFERS]: (points) => points,
 };
+
+export const sortPointsByDay = (a, b) => dayjs(a.dateFrom).diff(dayjs(b.dateFrom));
+export const sortPointsByPrice = (a, b) => b.base_price - a.base_price;
