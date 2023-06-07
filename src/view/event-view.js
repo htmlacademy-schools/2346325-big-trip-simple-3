@@ -6,7 +6,7 @@ import {
   getPointDateRFC
 } from '../utils.js';
 
-const createPointViewTemplate = (point) => {
+const createEventViewTemplate = (point) => {
   const {dateFrom, dateTo, basePrice, type, destination} = point;
 
   return (
@@ -49,23 +49,26 @@ const createPointViewTemplate = (point) => {
 };
 
 export default class PointView {
-  constructor(point) {
-    this.point = point;
+  #event = null;
+  #element = null;
+
+  constructor(event) {
+    this.#event = event;
   }
 
-  getTemplate() {
-    return createPointViewTemplate(this.point);
+  get template() {
+    return createEventViewTemplate(this.#event);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
