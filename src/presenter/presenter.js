@@ -1,6 +1,7 @@
 import EditEventView from '../view/edit-event-view.js';
 import EventView from '../view/event-view.js';
 import EventsListView from '../view/events-list-view.js';
+import EmptyListView from '../view/empty-list-view.js';
 import {render} from '../render.js';
 import { createOnEscKeydownFun } from '../utils.js';
 
@@ -11,6 +12,8 @@ class Presenter {
   #eventModel = null;
   #tripEvents = null;
 
+  #filter = 'Everything';
+
   init = (eventsContainer, eventModel) => {
     this.#eventsContainer = eventsContainer;
 
@@ -18,9 +21,12 @@ class Presenter {
     this.#tripEvents = [...this.#eventModel.tripEvents];
 
     render(this.#tripListComponent, this.#eventsContainer);
-
-    for (let i = 0; i < this.#tripEvents.length; i++) {
-      this.#renderEvent(this.#tripEvents[i]);
+    if(this.#tripEvents.length) {
+      for (let i = 0; i < this.#tripEvents.length; i++) {
+        this.#renderEvent(this.#tripEvents[i]);
+      }
+    } else {
+      render(new EmptyListView(this.#filter), this.#tripListComponent.element);
     }
   };
 
