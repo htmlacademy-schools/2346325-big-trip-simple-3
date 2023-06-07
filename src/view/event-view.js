@@ -46,7 +46,7 @@ const createEventViewTemplate = (point) => {
   );
 };
 
-export default class PointView extends AbstractView {
+export default class EventView extends AbstractView {
   #event = null;
 
   constructor(event) {

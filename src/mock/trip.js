@@ -12,7 +12,7 @@ const generatePhotos = () => {
   const pictures = new Array(picturesNumber);
   for (let i = 0; i < pictures.length; ++i) {
     pictures[i] = {
-      src: `http://picsum.photos/248/152?r=${getRandomInt(0, 100)}`,
+      src: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGljfGVufDB8fDB8fHww&w=1000&q=80', //сервис с картинками не работает :(
       description: generateDescription(),
     };
   }

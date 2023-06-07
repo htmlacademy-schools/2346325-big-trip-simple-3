@@ -4,14 +4,15 @@ import Presenter from './presenter/presenter.js';
 import EventModel from './model/event-model.js';
 import { generateFilters } from './mock/filters.js';
 
-const presenter = new Presenter();
+
 const eventModel = new EventModel();
 
 const tripEventsElement = document.querySelector('.trip-events');
 const filtersElement = document.querySelector('.trip-controls__filters');
 
-const filters = generateFilters(eventModel.tripEvents);
+const presenter = new Presenter(tripEventsElement, eventModel);
+presenter.init();
 
+const filters = generateFilters(eventModel.tripEvents);
 render(new FiltersView(filters), filtersElement);
 
-presenter.init(tripEventsElement, eventModel);
