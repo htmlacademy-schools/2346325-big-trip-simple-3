@@ -1,5 +1,5 @@
-import { getRandomArrayElement, getRandomInt } from '../utils.js';
-import { TRIP_EVENT_TYPES, DESCRIPTIONS, DESTINATION_NAMES } from './const.js';
+import { getRandomArrayElement, getRandomInt } from '../utils/common.js';
+import { TRIP_EVENT_TYPES, DESCRIPTIONS, DESTINATION_NAMES } from '../const.js';
 import dayjs from 'dayjs';
 
 const generateRandomEventType = () => getRandomArrayElement(TRIP_EVENT_TYPES);

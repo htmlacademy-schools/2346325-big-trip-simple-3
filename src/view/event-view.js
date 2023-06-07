@@ -1,14 +1,13 @@
-import {createElement} from '../render.js';
 import {
   humanizePointDate,
   humanizePointTime,
   humanizePointDateNumber,
   getPointDateRFC
-} from '../utils.js';
+} from '../utils/common.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 const createEventViewTemplate = (point) => {
-  const {dateFrom, dateTo, basePrice, type, destination} = point;
+  const {dateFrom, dateTo, basePrice, type, destination, offers} = point;
 
   return (
     `<li class="trip-events__item">
@@ -30,16 +29,14 @@ const createEventViewTemplate = (point) => {
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          <li class="event__offer">
-            <span class="event__offer-title">Book tickets</span>
-            &plus;&euro;&nbsp;
-            <span class="event__offer-price">40</span>
-          </li>
-          <li class="event__offer">
-            <span class="event__offer-title">Lunch in city</span>
-            &plus;&euro;&nbsp;
-            <span class="event__offer-price">30</span>
-          </li>
+        ${offers.length > 0 ? offers.map((offer) => (`<div class="event__offer-selector">
+                  <li class="event__offer">
+                    <span class="event__offer-title">${offer.title}</span>
+                    &plus;&euro;&nbsp;
+                    <span class="event__offer-price">${offer.price}</span>
+                  </li>
+                `)).join('') : ''
+    }
         </ul>
         <button class="event__rollup-btn" type="button">
           <span class="visually-hidden">Open event</span>
