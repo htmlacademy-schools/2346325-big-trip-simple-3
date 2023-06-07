@@ -1,6 +1,7 @@
 import {createElement} from '../render.js';
 import {humanizePointTime} from '../utils.js';
 import {TRIP_EVENT_TYPES} from '../mock/const.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createEventEditTemplate = (event) => {
   const {dateFrom, dateTo, type, offers, destination} = event;
@@ -99,11 +100,11 @@ const createEventEditTemplate = (event) => {
   );
 };
 
-export default class EditEventView {
-  #element = null;
+export default class EditEventView extends AbstractView {
   #event = null;
 
   constructor(event) {
+    super();
     this.#event = event;
   }
 
@@ -111,15 +112,33 @@ export default class EditEventView {
     return createEventEditTemplate(this.#event);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setFormSubmitHandler = (callback) => {
+    this._callback.formSubmit = callback;
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#formSubmitHandler);
+  };
 
-    return this.#element;
-  }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  setFormResetHandler = (callback) => {
+    this._callback.formReset = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formResetHandler);
+  };
+
+  #formResetHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formReset();
+  };
+
+  setCloseHandler = (callback) => {
+    this._callback.closeForm = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#buttonClickHandler);
+  };
+
+  #buttonClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.closeForm();
+  };
 }

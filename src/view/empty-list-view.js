@@ -1,4 +1,5 @@
 import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createEmptyListTemplate = (filter) => {
   if (filter === 'Everything') {
@@ -17,11 +18,11 @@ const createEmptyListTemplate = (filter) => {
   throw new Error('Unexpected filter');
 };
 
-export default class EmptyListView {
-  #element = null;
+export default class EmptyListView extends AbstractView {
   #filter = null;
 
   constructor(filter) {
+    super();
     this.#filter = filter;
   }
 
@@ -29,15 +30,4 @@ export default class EmptyListView {
     return createEmptyListTemplate(this.#filter);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
 }
