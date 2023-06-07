@@ -26,7 +26,7 @@ export const DESTINATION_NAMES = [
   'Amsterdam',
   'Chamonix',
   'Geneva',
-  'Italia',
+  'Rome',
   'Moscow'
 ];
 
