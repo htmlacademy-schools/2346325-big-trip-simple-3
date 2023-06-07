@@ -10,4 +10,4 @@ export const sort = {
 };
 
 export const sortPointsByDay = (a, b) => dayjs(a.dateFrom).diff(dayjs(b.dateFrom));
-export const sortPointsByPrice = (a, b) => b.base_price - a.base_price;
+export const sortPointsByPrice = (a, b) => b.basePrice - a.basePrice;
