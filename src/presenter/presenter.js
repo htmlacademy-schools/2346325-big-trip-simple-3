@@ -3,6 +3,8 @@ import EventView from '../view/event-view.js';
 import EventsListView from '../view/events-list-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import {render} from '../render.js';
+import SortView from '../view/sort-view.js';
+import { generateSort } from '../mock/sort.js';
 
 class Presenter {
   #tripListComponent = new EventsListView();
@@ -18,6 +20,9 @@ class Presenter {
 
     this.#eventModel = eventModel;
     this.#tripEvents = [...this.#eventModel.tripEvents];
+
+    const sorts = generateSort(this.#tripEvents);
+    render(new SortView(sorts), this.#eventsContainer);
 
     render(this.#tripListComponent, this.#eventsContainer);
     if(this.#tripEvents.length) {
@@ -65,12 +70,12 @@ class Presenter {
       document.body.removeEventListener('keydown', onEscKeyDown);
     });
 
-    editTripComponent.setFormSubmitHandler(() => {
+    editTripComponent.setFormCloseHandler(() => {
       replaceFormToRoutePoint();
       document.body.removeEventListener('keydown', onEscKeyDown);
     });
 
-    editTripComponent.setCloseHandler(() => {
+    editTripComponent.setFormResetHandler(() => {
       removeRoutePoint();
       document.body.removeEventListener('keydown', onEscKeyDown);
     });

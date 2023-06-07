@@ -1,10 +1,10 @@
-import {createElement} from '../render.js';
-import {humanizePointTime} from '../utils.js';
-import {TRIP_EVENT_TYPES} from '../mock/const.js';
+
+import {humanizePointTime} from '../utils/common.js';
+import {TRIP_EVENT_TYPES} from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 const createEventEditTemplate = (event) => {
-  const {dateFrom, dateTo, type, offers, destination} = event;
+  const {dateFrom, dateTo, type, offers, destination, basePrice} = event;
 
   return (
     `<li class="trip-events__item">
@@ -54,7 +54,7 @@ const createEventEditTemplate = (event) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="160">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -68,8 +68,7 @@ const createEventEditTemplate = (event) => {
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
             <div class="event__available-offers">
-              ${offers.length > 0 ? offers.map((offer) => (
-      `<div class="event__offer-selector">
+              ${offers.length > 0 ? offers.map((offer) => (`<div class="event__offer-selector">
                     <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" checked>
                     <label class="event__offer-label" for="event-offer-luggage-1">
                       <span class="event__offer-title">${offer.title}</span>
@@ -132,12 +131,12 @@ export default class EditEventView extends AbstractView {
     this._callback.formReset();
   };
 
-  setCloseHandler = (callback) => {
+  setFormCloseHandler = (callback) => {
     this._callback.closeForm = callback;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#buttonClickHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
   };
 
-  #buttonClickHandler = (evt) => {
+  #formCloseHandler = (evt) => {
     evt.preventDefault();
     this._callback.closeForm();
   };

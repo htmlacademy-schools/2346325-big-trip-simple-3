@@ -23,4 +23,6 @@ const humanizePointDateNumber = (dueDate) => dayjs(dueDate).format('YYYY-MM-DD')
 
 const getPointDateRFC = (dueDate) => dayjs(dueDate).format('YYYY-MM-DDTHH:mm');
 
-export { getRandomInt, getRandomArrayElement, humanizePointDate, humanizePointTime, humanizePointDateNumber, getPointDateRFC };
+const isEventUpcoming = (date) => !dayjs(date).isBefore(dayjs(), 'D');
+
+export { getRandomInt, getRandomArrayElement, humanizePointDate, humanizePointTime, humanizePointDateNumber, getPointDateRFC, isEventUpcoming};
