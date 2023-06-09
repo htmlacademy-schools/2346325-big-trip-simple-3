@@ -1,11 +1,13 @@
 import { render,replace,remove } from '../framework/render.js';
 import PointRouteView from '../view/route-point-view';
-import FormEdit from '../view/form-edit-view';
+import FormEditView from '../view/form-edit-view';
+import {UserAction, UpdateType} from '../mock/const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
   EDITING: 'EDITING',
 };
+
 export default class PointPresenter {
   #pointRoute = null;
   #destinations = null;
@@ -36,12 +38,12 @@ export default class PointPresenter {
     const prevFormEdit = this.#formEdit;
 
     this.#pointRouteView = new PointRouteView(pointRoute,destinations,offers);
-    this.#formEdit = new FormEdit(pointRoute,destinations,offers);
+    this.#formEdit = new FormEditView(pointRoute,destinations,offers);
 
     this.#pointRouteView.setFormOpen(this.#setFormOpen);
     this.#formEdit.setFormCLose(this.#setFormCLose);
     this.#formEdit.setFormSubmit(this.#setFormSubmit);
-
+    this.#formEdit.setFormDelete(this.#setFormDelete);
 
     if (prevPointRouteView === null || prevFormEdit === null) {
       render(this.#pointRouteView,this.#containerElement);
@@ -104,5 +106,9 @@ export default class PointPresenter {
   #setFormSubmit = (pointRoute,destinations,offers) => {
     this.#changeData(pointRoute,destinations,offers);
     this.#replaceFormToPoint();
+  };
+
+  #setFormDelete = (point) => {
+    this.#changeData(UserAction.DELETE_POINT, UpdateType.MINOR, point);
   };
 }
