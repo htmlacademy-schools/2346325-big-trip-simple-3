@@ -1,16 +1,20 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { humanizePointDate } from '../utils/point-utils.js';
+import { humanizePointDate, isOfferChecked } from '../utils/point-utils.js';
 import flatpickr from 'flatpickr';
-
 import 'flatpickr/dist/flatpickr.min.css';
-const createTypeTemplate = (offers,type) => {
-  const eventByType = offers.map((element) => element.type );
+import he from 'he';
 
-  return eventByType.map((eventType) =>
-    `<div class="event__type-item">
-    <input id="event-type-${eventType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventType}" ${eventType === type ? 'checked' : ''}>
-    <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${eventType}</label>
-  </div>`
+const createOffersTemplate = (offers,offersByType,type) => {
+  const offersByCurrentType = offersByType.find((element) => element.type === type).offers;
+  return offersByCurrentType.map(({ id, title, price }) =>
+    `<div class="event__offer-selector">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}-1" type="checkbox" name="event-offer-${title}" data-offer-id="${id}" ${isOfferChecked(offers, id) ? 'checked' : ''}>
+      <label class="event__offer-label" for="event-offer-${title}-1">
+        <span class="event__offer-title">${title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${price}</span>
+      </label>
+    </div>`
   ).join('');
 };
 
@@ -21,32 +25,19 @@ const createNameTemplate = (destinations) => {
 `).join('');
 };
 
-const createOffersTemplate = (offers,offersAll,type) => {
-  const offersByType = offers.find((element) => element.type === type).offers;
-  const offerTemplate = offersByType.map(({id,title,price}) =>{
-    const isChecked = () => {
-      if(offersAll.includes(id)) {
-        return 'checked';
-      }
-      return '';
-    };
-    return (
-      `  <div class='event__offer-selector'>
-    <input class='event__offer-checkbox  visually-hidden' id='event-offer-${title}-1' type='checkbox' name='event-offer-${title}' data-offer-id='${id}' ${isChecked(offers,id) ? 'checked' : ''}>
-    <label class='event__offer-label' for='event-offer-${title}-1'>
-      <span class='event__offer-title'>${title}</span>
-      &plus;&euro;&nbsp;
-      <span class='event__offer-price'>${price}</span>
-    </label>
-  </div>
-  `
-    );
-  }
-  );
-  return offerTemplate.join('');
+const createTypeTemplate = (offersByType,type) => {
+  const pointByType = offersByType.map((element) => element.type );
+
+  return pointByType.map((pointType) =>
+    `<div class="event__type-item">
+    <input id="event-type-${pointType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${pointType}" ${pointType === type ? 'checked' : ''}>
+    <label class="event__type-label  event__type-label--${pointType}" for="event-type-${pointType}-1">${pointType}</label>
+  </div>`
+  ).join('');
 };
-const createFormEditTemplate = (pointRoute,destinations,offers) => {
-  const {basePrice,dateFrom,dateTo,destination,type,offersAll} = pointRoute;
+
+const createFormEditTemplate = (pointRoute,destinations,offersByType) => {
+  const {basePrice,dateFrom,dateTo,destination,type,offers} = pointRoute;
 
   const destinationName = destinations.find((element) => element.id === destination).name;
   const destinationDescription = destinations.find((element) => element.id === destination).description;
@@ -66,7 +57,7 @@ const createFormEditTemplate = (pointRoute,destinations,offers) => {
         <div class="event__type-list">
           <fieldset class="event__type-group">
           <legend class="visually-hidden">Event type</legend>
-          ${createTypeTemplate(offers,type)}
+          ${createTypeTemplate(offersByType,type)}
           </fieldset>
         </div>
       </div>
@@ -74,7 +65,7 @@ const createFormEditTemplate = (pointRoute,destinations,offers) => {
         <label class="event__label  event__type-output" for="event-destination-1">
         ${type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(destinationName)}" list="destination-list-1">
         <datalist id="destination-list-1">
         ${createNameTemplate(destinations)}
         </datalist>
@@ -91,7 +82,7 @@ const createFormEditTemplate = (pointRoute,destinations,offers) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+        <input class="event__input  event__input--price" id="event-price-1" type="number" min="1" max="9999999"  name="event-price" value="${basePrice}">
       </div>
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
       <button class="event__reset-btn" type="reset">Delete</button>
@@ -101,7 +92,7 @@ const createFormEditTemplate = (pointRoute,destinations,offers) => {
       <section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
         <div class="event__available-offers">
-        ${createOffersTemplate(offers,offersAll,type)}
+        ${createOffersTemplate(offers,offersByType,type)}
         </div>
       </section>
       <section class="event__section  event__section--destination">
@@ -114,7 +105,7 @@ const createFormEditTemplate = (pointRoute,destinations,offers) => {
   );
 };
 
-export default class FormEdit extends AbstractStatefulView {
+export default class FormEditView extends AbstractStatefulView {
   #pointRoute = null;
   #destinations = null;
   #offers = null;
@@ -123,7 +114,7 @@ export default class FormEdit extends AbstractStatefulView {
 
   constructor (pointRoute,destinations,offers) {
     super();
-    this._state = FormEdit.parsePointToState(pointRoute);
+    this._state = FormEditView.parsePointToState(pointRoute);
     this.#destinations = destinations;
     this.#offers = offers;
     this.#setInnerHandlers();
@@ -149,7 +140,7 @@ export default class FormEdit extends AbstractStatefulView {
 
   reset = (pointRoute) => {
     this.updateElement (
-      FormEdit.parsePointToState(pointRoute)
+      FormEditView.parsePointToState(pointRoute)
     );
   };
 
@@ -201,20 +192,14 @@ export default class FormEdit extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(FormEdit.parseStateToPoint(this._state),this.#destinations,this.#offers );
-  };
-
-  _restoreHandlers = () => {
-    this.#setInnerHandlers();
-    this.setFormSubmit(this._callback.formSubmit);
-    this.setFormCLose(this._callback.formClose);
-    this.#setDatepicker();
+    this._callback.formSubmit(FormEditView.parseStateToPoint(this._state),this.#destinations,this.#offers );
   };
 
   #setInnerHandlers = () => {
     this.element.addEventListener('change', this.#onOfferChange);
     this.element.addEventListener('change', this.#onEventTypeChange);
     this.element.addEventListener('change', this.#onDestinationChange);
+    this.element.addEventListener('change', this.#onPriceChange);
   };
 
   #onOfferChange = (evt) => {
@@ -223,7 +208,7 @@ export default class FormEdit extends AbstractStatefulView {
     }
 
     evt.preventDefault();
-    const checkedOffers = [...this._state.offersAll];
+    const checkedOffers = [...this._state.offers];
     if (evt.target.checked) {
       checkedOffers.push(Number(evt.target.dataset.offerId));
     } else {
@@ -232,7 +217,7 @@ export default class FormEdit extends AbstractStatefulView {
     }
 
     this.updateElement({
-      offersAll: checkedOffers
+      offers: checkedOffers
     });
   };
 
@@ -244,7 +229,7 @@ export default class FormEdit extends AbstractStatefulView {
     evt.preventDefault();
     this.updateElement({
       type: evt.target.value,
-      offersAll: []
+      offers: []
     });
   };
 
@@ -258,6 +243,35 @@ export default class FormEdit extends AbstractStatefulView {
     this.updateElement({
       destination: newDestination
     });
+  };
+
+  setFormDelete = (callback) => {
+    this._callback.formDelete = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onDeletePointButtonClick);
+  };
+
+  #onPriceChange = (evt) => {
+    if (!evt.target.closest('input[type="number"].event__input--price')) {
+      return;
+    }
+
+    evt.preventDefault();
+    this.updateElement({
+      basePrice: evt.target.value
+    });
+  };
+
+  #onDeletePointButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.formDelete(FormEditView.parseStateToPoint(this._state));
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setFormSubmit(this._callback.formSubmit);
+    this.setFormCLose(this._callback.formClose);
+    this.setFormDelete(this._callback.formDelete);
+    this.#setDatepicker();
   };
 
   static parsePointToState = (pointRoute) => ({...pointRoute});

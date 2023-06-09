@@ -215,4 +215,24 @@ const SortType = {
   PRICE: 'price'
 };
 
-export {TRIP_TYPES,DESTINATIONS,OFFERS,SortType};
+const UserAction = {
+  UPDATE_POINT: 'UPDATE_EVENT',
+  ADD_POINT: 'ADD_EVENT',
+  DELETE_POINT: 'DELETE_EVENT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future'
+};
+
+const getOffersByType = () => OFFERS;
+const getDestinations = () => DESTINATIONS;
+
+export {TRIP_TYPES,DESTINATIONS,OFFERS,SortType,UserAction, UpdateType,FilterType, getOffersByType, getDestinations};
