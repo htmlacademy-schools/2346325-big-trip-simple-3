@@ -51,21 +51,21 @@ const createPointRouteTemplate = (pointRoute,destinations,offersByType) => {
   );
 };
 
-export default class PointRouteView extends AbstractView {
+export default class RoutePointView extends AbstractView {
 
-  #pointRoute = null;
+  #routePoint = null;
   #destinations = null;
   #offersByType = null;
 
-  constructor (pointRoute,destinations,offers) {
+  constructor (routePoint,destinations,offers) {
     super();
-    this.#pointRoute = pointRoute;
+    this.#routePoint = routePoint;
     this.#destinations = destinations;
     this.#offersByType = offers;
   }
 
   get template() {
-    return createPointRouteTemplate(this.#pointRoute,this.#destinations,this.#offersByType);
+    return createPointRouteTemplate(this.#routePoint,this.#destinations,this.#offersByType);
   }
 
   setFormOpen = (callback) => {
