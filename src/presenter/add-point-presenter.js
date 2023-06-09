@@ -1,6 +1,6 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
-import { UserAction, UpdateType } from '../mock/const.js';
-import FormAddView from '../view/form-add-view.js';
+import { UserAction, UpdateType } from '../const.js';
+import PointAddView from '../view/form-add-view.js';
 
 import { customAlphabet } from 'nanoid';
 const nanoid = customAlphabet('1234567890', 10);
@@ -29,7 +29,7 @@ export default class AddPointPresenter {
       return;
     }
 
-    this.#addPointComponent = new FormAddView (undefined, destinations, offersByType);
+    this.#addPointComponent = new PointAddView (undefined, destinations, offersByType);
 
     this.#addPointComponent.setOnCancelPointButtonClick(this.#onCancelButtonClick);
     this.#addPointComponent.setOnClosePointButtonClick(this.#onCloseButtonClick);
@@ -37,7 +37,7 @@ export default class AddPointPresenter {
 
     render(this.#addPointComponent, this.#tripPointsListContainer, RenderPosition.AFTERBEGIN);
 
-    document.addPointListener('keydown', this.#onEscKeyDown);
+    document.addEventListener('keydown', this.#onEscKeyDown);
   };
 
   setSaving = () => {
@@ -68,7 +68,7 @@ export default class AddPointPresenter {
     remove(this.#addPointComponent);
     this.#addPointComponent = null;
 
-    document.removePointListener('keydown', this.#onEscKeyDown);
+    document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 
   #onEscKeyDown = (evt) => {
