@@ -1,7 +1,7 @@
 import { render,replace,remove } from '../framework/render.js';
-import PointRouteView from '../view/route-point-view';
-import FormEditView from '../view/form-edit-view';
-import {UserAction, UpdateType} from '../mock/const.js';
+import PointRouteView from '../view/route-point-view.js';
+import FormEditView from '../view/form-edit-view.js';
+import {UserAction, UpdateType} from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -103,8 +103,8 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
   };
 
-  #setFormSubmit = (pointRoute,destinations,offers) => {
-    this.#changeData(pointRoute,destinations,offers);
+  #setFormSubmit = (update, destinations, offersByType) => {
+    this.#changeData(UserAction.UPDATE_POINT, UpdateType.MINOR, update, destinations, offersByType);
     this.#replaceFormToPoint();
   };
 

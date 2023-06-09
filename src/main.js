@@ -1,9 +1,14 @@
 import { render } from './framework/render.js';
-import { generatePoint, destinations, offersByType } from './mock/route-point.js';
+import TripPointsApiService from './trip-points-api-service.js';
+const AUTHORIZATION = 'Basic slo34rlodir984uj';
+const END_POINT = 'https://18.ecmascript.pages.academy/big-trip';
+const tripPointsApiService = new TripPointsApiService(END_POINT, AUTHORIZATION);
 
+
+import PointModel from './model/route-point-model';
 import DestinationsModel from './model/destinations-model.js';
 import OffersByTypeModel from './model/offers-by-type-model.js';
-import PointModel from './model/route-point-model.js';
+
 import FilterModel from './model/filter-model.js';
 
 import FilterPresenter from './presenter/filter-presenter.js';
@@ -17,9 +22,9 @@ const formAddButtonContainer = document.querySelector('.trip-main');
 const containerFilterPlace = document.querySelector('.trip-controls__filters');
 const containerPlace = document.querySelector('.trip-events');
 
-const pointModel = new PointModel(Array.from({ length: 10 }, generatePoint));
-const destinationsModel = new DestinationsModel(destinations);
-const offersByTypeModel = new OffersByTypeModel(offersByType);
+const pointModel = new PointModel(tripPointsApiService);
+const destinationsModel = new DestinationsModel(tripPointsApiService);
+const offersByTypeModel = new OffersByTypeModel(tripPointsApiService);
 const filterModel = new FilterModel();
 
 
@@ -36,7 +41,13 @@ const onAddPointButtonClick = () => {
 };
 
 render(formAddButtonComponent, formAddButtonContainer);
-formAddButtonComponent.setOnAddEventButtonClick(onAddPointButtonClick);
+formAddButtonComponent.setOnAddPointButtonClick(onAddPointButtonClick);
 
 filterPresenter.init();
 tripPointPresenter.init();
+
+Promise.all([destinationsModel.init(), offersByTypeModel.init(), pointModel.init()])
+  .then(() => {
+    render(formAddButtonComponent, formAddButtonContainer);
+    formAddButtonComponent.setOnAddPointButtonClick(onAddPointButtonClick);
+  });

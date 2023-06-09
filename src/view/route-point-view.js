@@ -55,17 +55,17 @@ export default class PointRouteView extends AbstractView {
 
   #pointRoute = null;
   #destinations = null;
-  #offers = null;
+  #offersByType = null;
 
   constructor (pointRoute,destinations,offers) {
     super();
     this.#pointRoute = pointRoute;
     this.#destinations = destinations;
-    this.#offers = offers;
+    this.#offersByType = offers;
   }
 
   get template() {
-    return createPointRouteTemplate(this.#pointRoute,this.#destinations,this.#offers);
+    return createPointRouteTemplate(this.#pointRoute,this.#destinations,this.#offersByType);
   }
 
   setFormOpen = (callback) => {

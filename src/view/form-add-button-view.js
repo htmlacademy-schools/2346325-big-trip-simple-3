@@ -1,20 +1,20 @@
 import AbstractView from '../framework/view/abstract-view';
 
-const createAddEventButtonTemplate = () => (`
+const createAddPointButtonTemplate = () => (`
   <button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button">New event</button>
   `);
 
 export default class FormAddButtonView extends AbstractView {
   get template() {
-    return createAddEventButtonTemplate();
+    return createAddPointButtonTemplate();
   }
 
-  setOnAddEventButtonClick = (callback) => {
+  setOnAddPointButtonClick = (callback) => {
     this._callback.click = callback;
-    this.element.addEventListener('click', this.#onAddEventButtonClick);
+    this.element.addEventListener('click', this.#onAddPointButtonClick);
   };
 
-  #onAddEventButtonClick = (evt) => {
+  #onAddPointButtonClick = (evt) => {
     evt.preventDefault();
     this._callback.click();
   };
