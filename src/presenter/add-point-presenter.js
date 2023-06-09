@@ -1,13 +1,8 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
-import PointAddView from '../view/form-add-view.js';
-
-import { customAlphabet } from 'nanoid';
-const nanoid = customAlphabet('1234567890', 10);
+import FormAddView from '../view/form-add-view.js';
 
 export default class AddPointPresenter {
-  #destinations = null;
-  #offersByType = null;
   #destroyCallback = null;
 
   #addPointComponent = null;
@@ -21,15 +16,13 @@ export default class AddPointPresenter {
   }
 
   init = (destinations, offersByType, destroyCallback) => {
-    this.#destinations = destinations;
-    this.#offersByType = offersByType;
     this.#destroyCallback = destroyCallback;
 
     if (this.#addPointComponent !== null) {
       return;
     }
 
-    this.#addPointComponent = new PointAddView (undefined, destinations, offersByType);
+    this.#addPointComponent = new FormAddView (undefined, destinations, offersByType);
 
     this.#addPointComponent.setOnCancelPointButtonClick(this.#onCancelButtonClick);
     this.#addPointComponent.setOnClosePointButtonClick(this.#onCloseButtonClick);
@@ -87,7 +80,7 @@ export default class AddPointPresenter {
   };
 
   #onFormSubmit = (point) => {
-    this.#changeData(UserAction.ADD_POINT, UpdateType.MINOR, {id: nanoid(), ...point});
+    this.#changeData(UserAction.ADD_POINT, UpdateType.MINOR, point);
     this.destroy();
   };
 }

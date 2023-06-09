@@ -4,6 +4,8 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
 
+const createPictureTemplate = (pictures) => pictures.map(({ src, description }) => `<img class="event__photo" src="${src}" alt="${description}"></img>`).join('');
+
 const createOffersTemplate = (offers,offersByType,type,isDisabled) => {
   const offersByCurrentType = offersByType.find((element) => element.type === type).offers;
   return offersByCurrentType.map(({ id, title, price }) =>
@@ -33,8 +35,7 @@ const createTypeTemplate = (offersByType,type,isDisabled) => {
 };
 
 const createFormEditTemplate = (point,destinations,offersByType) => {
-  const {basePrice,dateFrom,dateTo,destination,type,offers,isDisabled, isSaving} = point;
-
+  const {basePrice,dateFrom,dateTo,destination,type,offers,isDisabled, isSaving, isDeleting} = point;
   const currentDestination = destinations.find((element) => element.id === destination);
 
   const dataFromDisplay = humanizePointDate(dateFrom, 'DD/MM/YY HH:mm');
@@ -79,9 +80,11 @@ const createFormEditTemplate = (point,destinations,offersByType) => {
         </label>
         <input class="event__input  event__input--price" id="event-price-1" type="number" min="1" max="9999999"  name="event-price" value="${basePrice}">
       </div>
-      <button class="event__save-btn  btn  btn--blue" type="submit"${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+      <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
       <button class="event__rollup-btn" type="button">
+      <span class="visually-hidden">Open event</span>
+      </button>
       </header>
     <section class="event__details">
       <section class="event__section  event__section--offers">
@@ -95,7 +98,7 @@ const createFormEditTemplate = (point,destinations,offersByType) => {
         <p class="event__destination-description">${currentDestination.description}</p>
         <div class="event__photos-container">
           <div class="event__photos-tape">
-            ${currentDestination.pictures}
+            ${createPictureTemplate(currentDestination.pictures)}
           </div>
         </div>
       </section>
@@ -192,6 +195,9 @@ export default class FormEditView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
+    if (this._state.dateFrom > this._state.dateTo) {
+      return;
+    }
     this._callback.formSubmit(FormEditView.parseStateToPoint(this._state),this.#destinations,this.#offersByType );
   };
 
@@ -274,10 +280,17 @@ export default class FormEditView extends AbstractStatefulView {
     this.#setDatepicker();
   };
 
-  static parsePointToState = (pointRoute) => ({...pointRoute});
+  static parsePointToState = (point) => ({...point,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,
+  });
 
   static parseStateToPoint = (state) => {
-    const pointRoute = {...state};
-    return pointRoute;
+    const point = {...state};
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+    return point;
   };
 }

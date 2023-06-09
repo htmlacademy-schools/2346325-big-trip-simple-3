@@ -31,7 +31,7 @@ const createSortTemplate = (currentSortType) => `
 `;
 
 export default class SortView extends AbstractView {
-  #currentSortType = null;
+  #currentSortType = SortType.DAY;
 
   constructor(currentSortType) {
     super();
@@ -53,6 +53,7 @@ export default class SortView extends AbstractView {
     }
 
     evt.preventDefault();
+    this.#currentSortType = evt.target.dataset.sortType;
     this._callback.sortTypeChange(evt.target.dataset.sortType);
   };
 }
