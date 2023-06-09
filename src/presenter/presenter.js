@@ -1,102 +1,112 @@
-import EventsListView from '../view/events-list-view.js';
-import EmptyListView from '../view/empty-list-view.js';
-import { render, RenderPosition } from '../framework/render.js';
-import SortView from '../view/sort-view.js';
-import { updateItem } from '../utils/common.js';
-import TripPointPresenter from './trip-point-presenter.js';
-import { SORT_TYPE } from '../const.js';
-import { sortPointsByDay, sortPointsByPrice } from '../utils/sort.js';
+import {render} from '../framework/render.js';
+// import FormAdd from '../view/form-add-view';
+import PointPresenter from './trip-point-presenter.js';
+import PointList from '../view/point-list-view';
+import NoPoint from '../view/no-point-view';
+import Sort from '../view/sort-view';
+import {updateItem} from '../utils/common-utils.js';
+import { SortType } from '../mock/const.js';
+import {sortPointDay,sortPointPrice} from '../utils/point-utils';
+export default class RoutePresenter {
+  #pointList = new PointList ();
+  #sort = new Sort ();
+  #noPoint = new NoPoint();
 
-class Presenter {
-  #filter = 'Everything';
-  #currentSortType = SORT_TYPE.DAY;
+  #containerElement = null;
+  #pointModel = null;
 
-  #eventsContainer = null;
-  #eventModel = null;
-  #tripEvents = [];
+  #points = null;
+  #destinations = null;
+  #offers = null;
+  #pointPresenter = new Map();
+  #currentSortType = SortType.DATE;
+  #sourceRoutePoints = [];
 
-  #tripListComponent = new EventsListView();
-  #sortComponent = new SortView();
-  #emptyList = new EmptyListView(this.#filter);
-  #tripPointPresenter = new Map();
-
-  constructor(eventsContainer, eventModel) {
-    this.#eventsContainer = eventsContainer;
-    this.#eventModel = eventModel;
+  constructor (containerElement,pointModel) {
+    this.#containerElement = containerElement;
+    this.#pointModel = pointModel;
   }
 
   init = () => {
-    this.#tripEvents = [...this.#eventModel.tripEvents];
-    this.#renderTrip();
+    this.#points = [...this.#pointModel.points];
+    this.#destinations = [...this.#pointModel.destinations];
+    this.#offers = [...this.#pointModel.offers];
+    // render(new FormAdd (this.#routePoints[0],this.#destinations,this.#offers) , this.#formList.element);
+
+    this.#sourceRoutePoints = [...this.#pointModel.points];
+
+    this.#renderTripPoints();
   };
 
-  #renderTrip = () => {
-
-    if(!this.#tripEvents.length) {
-      render(this.#emptyList, this.#tripListComponent.element);
-    }
-
-    this.#renderSort(this.#currentSortType);
-    this.#renderList();
+  #onModeChange = () => {
+    this.#pointPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  #renderSort = () => {
-    render(this.#sortComponent, this.#eventsContainer, RenderPosition.AFTERBEGIN);
-    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+  #onPointChange = (updatedPointRoute,destinations,offers) => {
+    this.#points = updateItem(this.#points,updatedPointRoute);
+    this.#sourceRoutePoints = updateItem(this.#sourceRoutePoints,updatedPointRoute );
+    this.#pointPresenter.get(updatedPointRoute.id).init(updatedPointRoute,destinations,offers);
   };
 
-  #handleSortTypeChange = (sortType) => {
-    if (this.#currentSortType === sortType) {
-      return;
-    }
+  #sortPoint = (sortType) => {
 
-    this.#sortTrips(sortType);
-    this.#clearEventList();
-    this.#renderList();
-  };
-
-  #sortTrips = (sortType) => {
     switch (sortType) {
-      case SORT_TYPE.DAY:
-        this.#tripEvents.sort(sortPointsByDay);
+      case SortType.DAY:
+        this.#points.sort(sortPointDay);
         break;
-      case SORT_TYPE.PRICE:
-        this.#tripEvents.sort(sortPointsByPrice);
+      case SortType.PRICE:
+        this.#points.sort(sortPointPrice);
         break;
+      default:
+        this.#points = [...this.#sourceRoutePoints];
     }
 
     this.#currentSortType = sortType;
   };
 
-  #clearEventList = () => {
-    this.#tripPointPresenter.forEach((presenter) => presenter.destroy());
-    this.#tripPointPresenter.clear();
+  #onSortTypeChange = (sortType) => {
+
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+    this.#sortPoint(sortType);
+    this.#clearPointList();
+    this.#renderTripPoints();
   };
 
-  #renderList = () => {
-    render(this.#tripListComponent, this.#eventsContainer);
-    this.#renderEvents();
+  #renderPoint = (pointRoute,destinations,offers) => {
+    const pointPresenter = new PointPresenter(this.#pointList.element,this.#onPointChange,this.#onModeChange);
+    pointPresenter.init(pointRoute,destinations,offers);
+    this.#pointPresenter.set(pointRoute.id,pointPresenter);
   };
 
-  #renderEvents = () => {
-    this.#tripEvents.forEach((task) => this.#renderEvent(task));
+  #renderNoPoint = () => {
+    render (this.#noPoint, this.#containerElement);
   };
 
-  #renderEvent = (task) => {
-    const tripEventPresenter = new TripPointPresenter(this.#tripListComponent, this.#handleEventChange, this.#handleModeChange);
-    tripEventPresenter.init(task);
-    this.#tripPointPresenter.set(task.id, tripEventPresenter);
+  #renderSort = () => {
+    render (this.#sort, this.#containerElement);
+    this.#sort.setSortTypeChangeHandler(this.#onSortTypeChange);
   };
 
-  #handleEventChange = (updatedPoint) => {
-    this.#tripEvents = updateItem(this.#tripEvents, updatedPoint);
-    this.#tripPointPresenter.get(updatedPoint.id).init(updatedPoint);
+  #rednerFormList = () => {
+    render (this.#pointList , this.#containerElement);
   };
 
-  #handleModeChange = () => {
-    this.#tripPointPresenter.forEach((presenter) => presenter.resetView());
+  #clearPointList = () => {
+    this.#pointPresenter.forEach((presenter) => presenter.destroy());
+    this.#pointPresenter.clear();
   };
 
+  #renderTripPoints = () => {
+    if (this.#points.length === 0) {
+      this.#renderNoPoint();
+    } else {
+      this.#renderSort();
+      this.#rednerFormList();
+      for (let i = 0;i < this.#points.length; i++) {
+        this.#renderPoint(this.#points[i],this.#destinations,this.#offers);
+      }
+    }
+  };
 }
-
-export default Presenter;
