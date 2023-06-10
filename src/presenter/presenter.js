@@ -68,7 +68,12 @@ export default class Presenter {
 
   createTripPoint = (callback) => {
     this.#currentSortType = SortType.DAY;
-    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    if (this.#noPoint) {
+      this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+      remove(this.#noPoint);
+    } else {
+      this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    }
     this.#addPointPresenter.init(this.#pointModel.destinations, this.#pointModel.offersByType, callback);
   };
 
@@ -99,6 +104,11 @@ export default class Presenter {
           this.#pointPresenter.get(update.id).setAborting();
         }
         break;
+      case UserAction.CLOSE_FORM:
+        if (this.#noPoint) {
+          this.#clearPointList();
+          this.#renderTripPoints();
+        }
     }
     this.#uiBlocker.unblock();
   };

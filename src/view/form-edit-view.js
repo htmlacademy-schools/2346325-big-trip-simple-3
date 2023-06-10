@@ -168,13 +168,12 @@ export default class FormEditView extends AbstractStatefulView {
         defaultDate: this._state.dateFrom,
         onChange: this.#dueDateFromChangeHandler
       });
-
     this.#dateToPicker = flatpickr(this.element.querySelector('#event-end-time-1'),
       {
         enableTime: true,
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateTo,
-        onChange: this.#dueDateToChangeHandler
+        onChange: this.#dueDateToChangeHandler,
       });
   };
 
@@ -195,7 +194,8 @@ export default class FormEditView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    if (this._state.dateFrom > this._state.dateTo) {
+    if (humanizePointDate(this._state.dateFrom) > humanizePointDate(this._state.dateTo)) {
+      this.shake();
       return;
     }
     this._callback.formSubmit(FormEditView.parseStateToPoint(this._state),this.#destinations,this.#offersByType );

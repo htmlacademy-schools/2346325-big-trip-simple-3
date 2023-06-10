@@ -7,6 +7,7 @@ const UserAction = {
   UPDATE_POINT: 'UPDATE_EVENT',
   ADD_POINT: 'ADD_EVENT',
   DELETE_POINT: 'DELETE_EVENT',
+  CLOSE_FORM: 'CLOSE_FORM',
 };
 
 const UpdateType = {
