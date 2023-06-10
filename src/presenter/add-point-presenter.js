@@ -67,15 +67,18 @@ export default class AddPointPresenter {
   #onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
+      this.#changeData(UserAction.CLOSE_FORM);
       this.destroy();
     }
   };
 
   #onCancelButtonClick = () => {
+    this.#changeData(UserAction.CLOSE_FORM);
     this.destroy();
   };
 
   #onCloseButtonClick = () => {
+    this.#changeData(UserAction.CLOSE_FORM);
     this.destroy();
   };
 

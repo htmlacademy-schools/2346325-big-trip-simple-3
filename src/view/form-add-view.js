@@ -5,10 +5,11 @@ import 'flatpickr/dist/flatpickr.min.css';
 import dayjs from 'dayjs';
 import he from 'he';
 
+const date = dayjs().$d;
 const POINT_BLANK = {
   basePrice: 0,
-  dateFrom: dayjs(),
-  dateTo: dayjs(),
+  dateFrom:date,
+  dateTo: date,
   destination: 1,
   id: null,
   type: 'taxi',
@@ -49,6 +50,7 @@ const createTypeTemplate = (offersByType,type,isDisabled) => {
 const createFormEditTemplate = (point, destinations, offersByType) => {
   const { basePrice, dateFrom, dateTo, destination, type, offers, isDisabled, isSaving} = point;
   const currentDestination = destinations.find((element) => element.id === destination);
+
   return (
     ` <li class="trip-events__item ">
 <form class="event event--edit" action="#" method="post">
@@ -143,6 +145,7 @@ export default class FormAddView extends AbstractStatefulView {
 
     this.setOnSubmitPointForm(this._callback.submitPointForm);
     this.setOnCancelPointButtonClick(this._callback.cancelClick);
+    this.setOnClosePointButtonClick(this._callback.closeClick);
 
     this.#setDatePickers();
   };
@@ -166,6 +169,7 @@ export default class FormAddView extends AbstractStatefulView {
   #onSubmitPointForm = (evt) => {
     evt.preventDefault();
     if (this._state.dateFrom > this._state.dateTo) {
+      this.shake();
       return;
     }
     this._callback.submitPointForm(FormAddView.parseStateToPoint(this._state), this.#destinations, this.#offersByType);
@@ -189,20 +193,19 @@ export default class FormAddView extends AbstractStatefulView {
   };
 
   #setDatePickers = () => {
-    this.#dateFromPicker = flatpickr(this.element.querySelector('input[name="event-start-time"].event__input--time'), {
+    this.#dateFromPicker = flatpickr(this.element.querySelectorAll('.event__input--time')[0], {
       enableTime: true,
       dateFormat: 'd/m/y H:i',
       defaultDate: this._state.dateFrom,
       onChange: this.#onDateFromChange
     });
-    this.#dateToPicker = flatpickr(this.element.querySelector('input[name="event-end-time"].event__input--time'), {
+    this.#dateToPicker = flatpickr(this.element.querySelectorAll('.event__input--time')[1], {
       enableTime: true,
       dateFormat: 'd/m/y  H:i',
       defaultDate: this._state.dateTo,
-      onChange: this.#onDateToChange
+      onChange: this.#onDateToChange,
     });
   };
-
 
   #onCancelPointButtonClick = (evt) => {
     evt.preventDefault();
